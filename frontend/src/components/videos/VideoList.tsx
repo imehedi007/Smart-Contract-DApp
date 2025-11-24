@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Video } from '@/models/types';
+import { videoApi } from '@/services/videoApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -19,41 +20,57 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Eye } from 'lucide-react';
+import { Search, Eye, Loader2 } from 'lucide-react';
 import { formatDateTime } from '@/utils/formatters';
 
 interface VideoListProps {
-  videos: Video[];
+  videos?: Video[];
 }
 
-const VideoList = ({ videos }: VideoListProps) => {
+const VideoList = ({ videos: initialVideos }: VideoListProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [videos, setVideos] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        setIsLoading(true);
+        const result = await videoApi.getVideos();
+        setVideos(result.data || []);
+      } catch (error) {
+        console.error('Failed to fetch videos:', error);
+        setVideos([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
 
   const locations = useMemo(() => {
-    const unique = new Set(videos.map(v => v.camera_location));
+    const unique = new Set(videos.map(v => v.cameraLocation));
     return Array.from(unique).sort();
   }, [videos]);
 
   const filteredVideos = useMemo(() => {
     return videos.filter(video => {
       const matchesSearch = 
-        video.video_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        video.camera_id.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesStatus = 
-        statusFilter === 'all' || video.processing_status === statusFilter;
+        video.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.cameraId.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesLocation = 
-        locationFilter === 'all' || video.camera_location === locationFilter;
+        locationFilter === 'all' || video.cameraLocation === locationFilter;
 
-      return matchesSearch && matchesStatus && matchesLocation;
+      return matchesSearch && matchesLocation;
     });
-  }, [videos, searchQuery, statusFilter, locationFilter]);
+  }, [videos, searchQuery, locationFilter]);
 
-  const getStatusBadge = (status: Video['processing_status']) => {
+  const getStatusBadge = (status: string = 'Completed') => {
     const variants = {
       Pending: 'secondary',
       Processing: 'default',
@@ -69,11 +86,20 @@ const VideoList = ({ videos }: VideoListProps) => {
     };
 
     return (
-      <Badge variant={variants[status]} className={colors[status]}>
+      <Badge variant={variants[status as keyof typeof variants] || 'default'} className={colors[status as keyof typeof colors] || ''}>
         {status}
       </Badge>
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Loading videos...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -100,19 +126,6 @@ const VideoList = ({ videos }: VideoListProps) => {
             ))}
           </SelectContent>
         </Select>
-
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px] bg-input border-border">
-            <SelectValue placeholder="All Statuses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="Pending">Pending</SelectItem>
-            <SelectItem value="Processing">Processing</SelectItem>
-            <SelectItem value="Completed">Completed</SelectItem>
-            <SelectItem value="Failed">Failed</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Table */}
@@ -125,39 +138,35 @@ const VideoList = ({ videos }: VideoListProps) => {
               <TableHead>Camera ID</TableHead>
               <TableHead>Upload Time</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Events</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredVideos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   No videos found
                 </TableCell>
               </TableRow>
             ) : (
               filteredVideos.map((video) => (
-                <TableRow key={video.video_id} className="border-border">
+                <TableRow key={video.id} className="border-border">
                   <TableCell className="font-mono text-sm">
-                    {video.video_id}
+                    {video.id}
                   </TableCell>
-                  <TableCell>{video.camera_location}</TableCell>
+                  <TableCell>{video.cameraLocation}</TableCell>
                   <TableCell className="font-mono text-sm">
-                    {video.camera_id}
+                    {video.cameraId}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {formatDateTime(video.upload_time)}
+                    {formatDateTime(video.uploadedAt)}
                   </TableCell>
-                  <TableCell>{getStatusBadge(video.processing_status)}</TableCell>
-                  <TableCell className="text-right">
-                    {video.detected_events_count ?? '-'}
-                  </TableCell>
+                  <TableCell>{getStatusBadge('Completed')}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`/dashboard/video/${video.video_id}`)}
+                      onClick={() => navigate(`/dashboard/video/${video.id}`)}
                       className="gap-2"
                     >
                       <Eye className="h-4 w-4" />
