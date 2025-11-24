@@ -116,6 +116,36 @@ app.get('/api/health', (req, res) => {
 
 app.get('/api/footage', (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const data = loadFootageData();
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = data.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: paginatedData,
+      pagination: {
+        page,
+        limit,
+        total: data.length,
+        totalPages: Math.ceil(data.length / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error reading footage data:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error reading footage data',
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/footage/list/all', (req, res) => {
+  try {
     const data = loadFootageData();
     res.json({ success: true, data });
   } catch (error) {
@@ -123,6 +153,29 @@ app.get('/api/footage', (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error reading footage data',
+      error: error.message
+    });
+  }
+});
+
+app.get('/api/footage/:id', (req, res) => {
+  try {
+    const data = loadFootageData();
+    const footage = data.find(item => item.id === req.params.id);
+
+    if (!footage) {
+      return res.status(404).json({
+        success: false,
+        message: 'Footage not found'
+      });
+    }
+
+    res.json({ success: true, data: footage });
+  } catch (error) {
+    console.error('Error fetching footage:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching footage',
       error: error.message
     });
   }

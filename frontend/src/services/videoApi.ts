@@ -68,9 +68,40 @@ const mockMetadata: Record<string, VideoMetadata> = {
 };
 
 export const videoApi = {
-  getVideos: async (): Promise<Video[]> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockVideos;
+  getVideos: async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:3001/api/footage'
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch videos:', error);
+      return { success: false, data: [], pagination: { page: 1, limit: 10, total: 0, totalPages: 0 } };
+    }
+  },
+
+  getVideosPaginated: async (page: number = 1, limit: number = 10) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/footage?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch videos:', error);
+      throw error;
+    }
+  },
+
+  getAllVideos: async () => {
+    try {
+      const response = await axios.get(
+        'http://localhost:3001/api/footage/list/all'
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error('Failed to fetch all videos:', error);
+      return [];
+    }
   },
 
   uploadVideo: async (data: UploadVideoData): Promise<Video> => {
@@ -108,6 +139,17 @@ export const videoApi = {
   //   console.log(newVideo);
   //   return newVideo;
   // },
+
+  getVideoById: async (videoId: string) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/footage/${videoId}`
+      );
+      return response.data.data;
+    } catch (error) {
+      throw new Error('Failed to fetch video');
+    }
+  },
 
   getVideoMetadata: async (videoId: string): Promise<VideoMetadata> => {
     await new Promise(resolve => setTimeout(resolve, 500));
