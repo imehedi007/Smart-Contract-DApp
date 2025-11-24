@@ -92,17 +92,17 @@ export const videoApi = {
     }
   },
 
-  getAllVideos: async () => {
-    try {
-      const response = await axios.get(
-        'http://localhost:3001/api/footage/list/all'
-      );
-      return response.data.data;
-    } catch (error) {
-      console.error('Failed to fetch all videos:', error);
-      return [];
-    }
-  },
+  // getAllVideos: async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       'http://localhost:3001/api/footage/list/all'
+  //     );
+  //     return response.data.data;
+  //   } catch (error) {
+  //     console.error('Failed to fetch all videos:', error);
+  //     return [];
+  //   }
+  // },
 
   uploadVideo: async (data: UploadVideoData): Promise<Video> => {
     const formData = new FormData();

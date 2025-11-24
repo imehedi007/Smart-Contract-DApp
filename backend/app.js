@@ -114,6 +114,60 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is healthy' });
 });
 
+app.get('/api/video/stream/:id', (req, res) => {
+  try {
+    const data = loadFootageData();
+    const footage = data.find(item => item.id === req.params.id);
+
+    if (!footage) {
+      return res.status(404).json({
+        success: false,
+        message: 'Video not found'
+      });
+    }
+
+    const videoPath = footage.videoPath;
+    
+    if (!fs.existsSync(videoPath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Video file not found on server'
+      });
+    }
+
+    const stat = fs.statSync(videoPath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': end - start + 1,
+        'Content-Type': 'video/mp4'
+      });
+      fs.createReadStream(videoPath, { start, end }).pipe(res);
+    } else {
+      res.writeHead(200, {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4'
+      });
+      fs.createReadStream(videoPath).pipe(res);
+    }
+  } catch (error) {
+    console.error('Error streaming video:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error streaming video',
+      error: error.message
+    });
+  }
+});
+
 app.get('/api/footage', (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { VideoMetadata } from '@/models/types';
 import { videoApi } from '@/services/videoApi';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import VideoPlayer from '@/components/video-detail/VideoPlayer';
@@ -11,25 +10,28 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 const VideoDetail = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const navigate = useNavigate();
-  const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
+  const [videoData, setVideoData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchMetadata = async () => {
+    const fetchVideoData = async () => {
       if (!videoId) return;
       
       setIsLoading(true);
+      setError(null);
       try {
-        const data = await videoApi.getVideoMetadata(videoId);
-        setMetadata(data);
-      } catch (error) {
-        console.error('Failed to fetch metadata:', error);
+        const data = await videoApi.getVideoById(videoId);
+        setVideoData(data);
+      } catch (err) {
+        console.error('Failed to fetch video:', err);
+        setError('Failed to load video details');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMetadata();
+    fetchVideoData();
   }, [videoId]);
 
   if (isLoading) {
@@ -37,16 +39,17 @@ const VideoDetail = () => {
       <DashboardLayout>
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Loading video...</span>
         </div>
       </DashboardLayout>
     );
   }
 
-  if (!metadata) {
+  if (error || !videoData) {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Video not found</p>
+          <p className="text-muted-foreground">{error || 'Video not found'}</p>
           <Button
             onClick={() => navigate('/dashboard')}
             className="mt-4"
@@ -73,21 +76,21 @@ const VideoDetail = () => {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Videos
             </Button>
-            <h1 className="text-3xl font-bold">{metadata.video_id}</h1>
+            <h1 className="text-3xl font-bold">{videoData.id}</h1>
             <p className="text-muted-foreground mt-1">
-              {metadata.camera_location} • {metadata.camera_id}
+              {videoData.cameraLocation} • {videoData.cameraId}
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <VideoPlayer
-            videoUrl={videoApi.getVideoStreamUrl(metadata.video_id)}
-            videoId={metadata.video_id}
+            videoUrl={`http://localhost:3001/api/video/stream/${videoData.id}`}
+            videoId={videoData.id}
           />
           
           <EventsList
-            events={metadata.detected_events}
+            events={[]}
             onJumpToEvent={(time) => console.log('Jump to:', time)}
           />
         </div>
