@@ -166,4 +166,16 @@ export const videoApi = {
     // Return a mock video URL (you can replace with actual backend URL)
     return `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`;
   },
+
+  deleteVideo: async (videoId: string) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/api/footage/${videoId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to delete video:', error);
+      throw error;
+    }
+  },
 };

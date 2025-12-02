@@ -1,0 +1,29 @@
+{
+  "video_file": "460bb26e-5863-4e9e-8a9b-7c0767aedaf7_annotated.mp4",
+  "total_frames": 228,
+  "fps": 30.0,
+  "persons": [
+    {
+      "person_id": "PERSON_1764660600839_M8VLSZMQO",
+      "average_confidence": 0.6898,
+      "identification": {
+        "nid": "98765431",
+        "name": "Imran"
+      }
+    },
+    {
+      "person_id": "P002",
+      "average_confidence": 0.0,
+      "identification": null
+    },
+    {
+      "person_id": "PERSON_1764663547866_NW8SD7PKA",
+      "average_confidence": 0.6495,
+      "identification": {
+        "nid": "3123781284",
+        "name": "Esmail"
+      }
+    }
+  ],
+  "processing_timestamp": "2025-12-02T14:37:24.384798"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "person_id": "PERSON_1764660600839_M8VLSZMQO",
+    "nid": "98765431",
+    "name": "Imran",
+    "photo_url": "/api/nid-bank/photo/98765431",
+    "uploaded_at": "2025-12-02T07:30:00.839Z"
+  },
+  {
+    "person_id": "PERSON_1764663547866_NW8SD7PKA",
+    "nid": "3123781284",
+    "name": "Esmail",
+    "photo_url": "/api/nid-bank/photo/3123781284",
+    "uploaded_at": "2025-12-02T08:19:07.866Z"
+  }
+]

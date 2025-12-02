@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { videoApi } from '@/services/videoApi';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import VideoPlayer from '@/components/video-detail/VideoPlayer';
-import EventsList from '@/components/video-detail/EventsList';
+import DetectedPersons from '@/components/video-detail/DetectedPersons';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
@@ -18,7 +18,9 @@ const VideoDetail = () => {
     const fetchVideoData = async () => {
       if (!videoId) return;
       
-      setIsLoading(true);
+      if (!videoData) {
+        setIsLoading(true);
+      }
       setError(null);
       try {
         const data = await videoApi.getVideoById(videoId);
@@ -32,7 +34,16 @@ const VideoDetail = () => {
     };
 
     fetchVideoData();
-  }, [videoId]);
+
+    // Poll every 3 seconds if video is processing
+    const interval = setInterval(() => {
+      if (videoData?.annotated_video?.processing_status === 'Processing') {
+        fetchVideoData();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [videoId, videoData?.annotated_video?.processing_status]);
 
   if (isLoading) {
     return (
@@ -84,16 +95,54 @@ const VideoDetail = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <VideoPlayer
-            videoUrl={`http://localhost:3001/api/video/stream/${videoData.id}`}
-            videoId={videoData.id}
-          />
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Uploaded Video</h2>
+            <VideoPlayer
+              videoUrl={`http://localhost:3001/api/video/stream/${videoData.id}`}
+              videoId={videoData.id}
+              videoData={videoData.original_video}
+            />
+          </div>
           
-          <EventsList
-            events={[]}
-            onJumpToEvent={(time) => console.log('Jump to:', time)}
-          />
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Annotated Video</h2>
+            {videoData.annotated_video?.processing_status === 'Completed' ? (
+              <VideoPlayer
+                videoUrl={`http://localhost:3001/api/video/stream/${videoData.id}?type=annotated`}
+                videoId={videoData.id}
+                videoData={videoData.annotated_video}
+                isAnnotated={true}
+              />
+            ) : (
+              <div className="border border-border rounded-lg p-8 bg-card">
+                <div className="text-center">
+                  {videoData.annotated_video?.processing_status === 'Processing' ? (
+                    <>
+                      <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+                      <p className="text-muted-foreground">Processing annotated video...</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-destructive">Processing failed</p>
+                      {videoData.annotated_video?.error && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {videoData.annotated_video.error}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
+        {videoData.annotated_video?.processing_status === 'Completed' && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Detected Persons</h2>
+            <DetectedPersons persons={videoData.annotated_video?.persons} />
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

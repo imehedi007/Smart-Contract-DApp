@@ -20,8 +20,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Eye, Loader2 } from 'lucide-react';
+import { Search, Eye, Loader2, Trash2 } from 'lucide-react';
 import { formatDateTime } from '@/utils/formatters';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface VideoListProps {
   videos?: Video[];
@@ -34,13 +43,25 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; videoId: string | null }>({ show: false, videoId: null });
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         setIsLoading(true);
         const result = await videoApi.getVideos();
-        setVideos(result.data || []);
+        // Combine all pages if available
+        let allVideos = result.data || [];
+        if (result.pagination && result.pagination.totalPages > 1) {
+          // Fetch remaining pages
+          for (let page = 2; page <= result.pagination.totalPages; page++) {
+            const pageResult = await videoApi.getVideosPaginated(page, 10);
+            allVideos = [...allVideos, ...(pageResult.data || [])];
+          }
+        }
+        setVideos(allVideos);
       } catch (error) {
         console.error('Failed to fetch videos:', error);
         setVideos([]);
@@ -51,6 +72,34 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
 
     fetchVideos();
   }, []);
+
+  // Auto-refresh when there are processing videos
+  useEffect(() => {
+    const hasProcessing = videos.some(v => 
+      (v.processing_status === 'Processing') || 
+      (v.annotated_video?.processing_status === 'Processing')
+    );
+
+    if (!hasProcessing) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const result = await videoApi.getVideos();
+        let allVideos = result.data || [];
+        if (result.pagination && result.pagination.totalPages > 1) {
+          for (let page = 2; page <= result.pagination.totalPages; page++) {
+            const pageResult = await videoApi.getVideosPaginated(page, 10);
+            allVideos = [...allVideos, ...(pageResult.data || [])];
+          }
+        }
+        setVideos(allVideos);
+      } catch (error) {
+        console.error('Failed to refresh videos:', error);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [videos.some(v => (v.processing_status === 'Processing') || (v.annotated_video?.processing_status === 'Processing'))]);
 
   const locations = useMemo(() => {
     const unique = new Set(videos.map(v => v.cameraLocation));
@@ -66,9 +115,12 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
       const matchesLocation = 
         locationFilter === 'all' || video.cameraLocation === locationFilter;
 
-      return matchesSearch && matchesLocation;
+      const matchesStatus = 
+        statusFilter === 'all' || (video.processing_status || video.annotated_video?.processing_status || 'Completed') === statusFilter;
+
+      return matchesSearch && matchesLocation && matchesStatus;
     });
-  }, [videos, searchQuery, locationFilter]);
+  }, [videos, searchQuery, locationFilter, statusFilter]);
 
   const getStatusBadge = (status: string = 'Completed') => {
     const variants = {
@@ -90,6 +142,34 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
         {status}
       </Badge>
     );
+  };
+
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      setIsDeleting(true);
+      await videoApi.deleteVideo(videoId);
+      setVideos(videos.filter(v => v.id !== videoId));
+      setDeleteConfirm({ show: false, videoId: null });
+    } catch (error) {
+      console.error('Failed to delete video:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    try {
+      setIsDeleting(true);
+      for (const video of videos) {
+        await videoApi.deleteVideo(video.id);
+      }
+      setVideos([]);
+      setDeleteAllConfirm(false);
+    } catch (error) {
+      console.error('Failed to delete videos:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -126,6 +206,29 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
             ))}
           </SelectContent>
         </Select>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-[180px] bg-input border-border">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
+            <SelectItem value="Processing">Processing</SelectItem>
+            <SelectItem value="Failed">Failed</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button
+          variant="destructive"
+          onClick={() => setDeleteAllConfirm(true)}
+          disabled={videos.length === 0 || isDeleting}
+          className="w-full sm:w-auto"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete All
+        </Button>
       </div>
 
       {/* Table */}
@@ -161,17 +264,27 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
                   <TableCell className="text-sm text-muted-foreground">
                     {formatDateTime(video.uploadedAt)}
                   </TableCell>
-                  <TableCell>{getStatusBadge('Completed')}</TableCell>
+                  <TableCell>{getStatusBadge(video.processing_status || video.annotated_video?.processing_status || 'Completed')}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`/dashboard/video/${video.id}`)}
-                      className="gap-2"
-                    >
-                      <Eye className="h-4 w-4" />
-                      View
-                    </Button>
+                    <div className="flex items-center justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(`/dashboard/video/${video.id}`)}
+                        className="gap-2"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setDeleteConfirm({ show: true, videoId: video.id })}
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -179,6 +292,50 @@ const VideoList = ({ videos: initialVideos }: VideoListProps) => {
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete Single Video Dialog */}
+      <AlertDialog open={deleteConfirm.show} onOpenChange={(open) => setDeleteConfirm({ ...deleteConfirm, show: open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Video</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this video? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-4">
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm.videoId && handleDeleteVideo(deleteConfirm.videoId)}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Videos Dialog */}
+      <AlertDialog open={deleteAllConfirm} onOpenChange={setDeleteAllConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete All Videos</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete all {videos.length} videos? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-4">
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAll}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete All'}
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

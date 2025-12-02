@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Shield, Video, LogOut, Home, BarChart3 } from 'lucide-react';
+import { Shield, Video, LogOut, Home, BarChart3, Database } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 
 interface DashboardLayoutProps {
@@ -22,6 +22,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navItems = [
     { path: '/dashboard', label: 'Videos', icon: Video },
     { path: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+    { path: '/dashboard/nid-database', label: 'NID Database', icon: Database },
   ];
 
   return (

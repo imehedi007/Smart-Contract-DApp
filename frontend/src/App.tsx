@@ -8,14 +8,17 @@ import LoginPage from "./components/auth/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import VideoDetail from "./pages/VideoDetail";
 import Analytics from "./pages/Analytics";
+import NIDBankDashboard from "./pages/NIDBankDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+/* Commented out - login no longer required
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <>{children}</> : <Navigate to="/" />;
 };
+*/
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -25,30 +28,26 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
+            {/* <Route path="/" element={<LoginPage />} /> */}
+            <Route
+              path="/"
+              element={<Dashboard />}
+            />
             <Route
               path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
+              element={<Dashboard />}
             />
             <Route
               path="/dashboard/video/:videoId"
-              element={
-                <ProtectedRoute>
-                  <VideoDetail />
-                </ProtectedRoute>
-              }
+              element={<VideoDetail />}
             />
             <Route
               path="/dashboard/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
+              element={<Analytics />}
+            />
+            <Route
+              path="/dashboard/nid-database"
+              element={<NIDBankDashboard />}
             />
             <Route path="*" element={<NotFound />} />
           </Routes>

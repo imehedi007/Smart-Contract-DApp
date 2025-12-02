@@ -1,26 +1,76 @@
 [
   {
-    "id": "7fa15d7c-899a-431e-8599-54d84423c8d7",
-    "cameraId": "skjnkdn",
-    "cameraLocation": "snknjk",
-    "videoFileName": "7fa15d7c-899a-431e-8599-54d84423c8d7.mp4",
-    "videoPath": "/Users/imranmehedi/Thesis/Thesis project/uploads/7fa15d7c-899a-431e-8599-54d84423c8d7.mp4",
-    "uploadedAt": "2025-11-24T14:14:55.416Z"
+    "id": "8fb6a073-eccd-429d-ae00-9c86d2c57c25",
+    "cameraId": "cam001",
+    "cameraLocation": "bosila",
+    "original_video": {
+      "fileName": "8fb6a073-eccd-429d-ae00-9c86d2c57c25.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/8fb6a073-eccd-429d-ae00-9c86d2c57c25.mp4"
+    },
+    "annotated_video": {
+      "fileName": "8fb6a073-eccd-429d-ae00-9c86d2c57c25_annotated.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/8fb6a073-eccd-429d-ae00-9c86d2c57c25_annotated.mp4",
+      "processing_status": "Failed",
+      "error": "Python script exited with code 1: Traceback (most recent call last):\n  File \"/Users/imranmehedi/Thesis/Smart-Contract-DApp/dl/main.py\", line 2, in <module>\n    import cv2\nModuleNotFoundError: No module named 'cv2'\n"
+    },
+    "uploadedAt": "2025-12-02T05:06:29.870Z",
+    "processing_status": "Failed"
   },
   {
-    "id": "be2ff3cf-fbd2-469d-b605-d7e441847086",
-    "cameraId": "imranid",
-    "cameraLocation": "imran test",
-    "videoFileName": "be2ff3cf-fbd2-469d-b605-d7e441847086.mp4",
-    "videoPath": "/Users/imranmehedi/Thesis/Thesis project/uploads/be2ff3cf-fbd2-469d-b605-d7e441847086.mp4",
-    "uploadedAt": "2025-11-24T14:15:32.772Z"
+    "id": "b4ff88e4-94ff-4077-8a79-d57a58b70164",
+    "cameraId": "cam1",
+    "cameraLocation": "future town",
+    "original_video": {
+      "fileName": "b4ff88e4-94ff-4077-8a79-d57a58b70164.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/b4ff88e4-94ff-4077-8a79-d57a58b70164.mp4"
+    },
+    "annotated_video": {
+      "fileName": "b4ff88e4-94ff-4077-8a79-d57a58b70164_annotated.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/b4ff88e4-94ff-4077-8a79-d57a58b70164_annotated.mp4",
+      "processing_status": "Failed",
+      "error": "Python script exited with code 1: 2025-12-02 11:13:52,470 - root - INFO - Starting face detection pipeline\n2025-12-02 11:13:52,470 - root - INFO - Input video: /Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/b4ff88e4-94ff-4077-8a79-d57a58b70164.mp4\n2025-12-02 11:13:52,470 - root - INFO - Output video: /Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/b4ff88e4-94ff-4077-8a79-d57a58b70164_annotated.mp4\nTraceback (most recent call last):\n  File \"/Users/imranmehedi/Thesis/Smart-Contract-DApp/dl/main.py\", line 212, in <module>\n    main(args)\n  File \"/Users/imranmehedi/Thesis/Smart-Contract-DApp/dl/main.py\", line 165, in main\n    recognizer = ArcFace(params.rec_weight)\n  File \"/Users/imranmehedi/Thesis/Smart-Contract-DApp/dl/models/arcface.py\", line 18, in __init__\n    self.session = onnxruntime.InferenceSession(\n  File \"/Users/imranmehedi/Thesis/Smart-Contract-DApp/dl/venv/lib/python3.9/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py\", line 419, in __init__\n    self._create_inference_session(providers, provider_options, disabled_optimizers)\n  File \"/Users/imranmehedi/Thesis/Smart-Contract-DApp/dl/venv/lib/python3.9/site-packages/onnxruntime/capi/onnxruntime_inference_collection.py\", line 480, in _create_inference_session\n    sess = C.InferenceSession(session_options, self._model_path, True, self._read_config_from_model)\nonnxruntime.capi.onnxruntime_pybind11_state.NoSuchFile: [ONNXRuntimeError] : 3 : NO_SUCHFILE : Load model from ./weights/w600k_r50.onnx failed:Load model ./weights/w600k_r50.onnx failed. File doesn't exist\n"
+    },
+    "uploadedAt": "2025-12-02T05:13:18.494Z",
+    "processing_status": "Failed"
   },
   {
-    "id": "732f2759-7f1e-41b2-a6b5-fceffeb8e8eb",
-    "cameraId": "cam002",
-    "cameraLocation": "uttara",
-    "videoFileName": "732f2759-7f1e-41b2-a6b5-fceffeb8e8eb.mp4",
-    "videoPath": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/732f2759-7f1e-41b2-a6b5-fceffeb8e8eb.mp4",
-    "uploadedAt": "2025-11-24T19:22:31.779Z"
+    "id": "460bb26e-5863-4e9e-8a9b-7c0767aedaf7",
+    "cameraId": "cam 1",
+    "cameraLocation": "Shankar",
+    "original_video": {
+      "fileName": "460bb26e-5863-4e9e-8a9b-7c0767aedaf7.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/460bb26e-5863-4e9e-8a9b-7c0767aedaf7.mp4"
+    },
+    "annotated_video": {
+      "fileName": "460bb26e-5863-4e9e-8a9b-7c0767aedaf7_annotated.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/460bb26e-5863-4e9e-8a9b-7c0767aedaf7_annotated.mp4",
+      "processing_status": "Completed",
+      "persons": [
+        {
+          "person_id": "PERSON_1764660600839_M8VLSZMQO",
+          "average_confidence": 0.6898,
+          "identification": {
+            "nid": "98765431",
+            "name": "Imran"
+          }
+        },
+        {
+          "person_id": "P002",
+          "average_confidence": 0,
+          "identification": null
+        },
+        {
+          "person_id": "PERSON_1764663547866_NW8SD7PKA",
+          "average_confidence": 0.6495,
+          "identification": {
+            "nid": "3123781284",
+            "name": "Esmail"
+          }
+        }
+      ]
+    },
+    "uploadedAt": "2025-12-02T08:36:30.606Z",
+    "processing_status": "Completed",
+    "completed_at": "2025-12-02T08:37:24.465Z"
   }
 ]
