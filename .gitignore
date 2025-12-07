@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Python virtual environments
+.venv
+venv
+env
+dl/venv
+
+# Large model files (exceeds GitHub's 100MB limit)
+*.onnx
+*.pt
+dl/weights/
+dl/models/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
