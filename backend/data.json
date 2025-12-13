@@ -72,5 +72,45 @@
     "uploadedAt": "2025-12-02T08:36:30.606Z",
     "processing_status": "Completed",
     "completed_at": "2025-12-02T08:37:24.465Z"
+  },
+  {
+    "id": "08e298e5-a79c-4ca5-86f9-070994c68dfb",
+    "cameraId": "Camera001",
+    "cameraLocation": "Mohammadpur",
+    "original_video": {
+      "fileName": "08e298e5-a79c-4ca5-86f9-070994c68dfb.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/08e298e5-a79c-4ca5-86f9-070994c68dfb.mp4"
+    },
+    "annotated_video": {
+      "fileName": "08e298e5-a79c-4ca5-86f9-070994c68dfb_annotated.mp4",
+      "path": "/Users/imranmehedi/Thesis/Smart-Contract-DApp/uploads/08e298e5-a79c-4ca5-86f9-070994c68dfb_annotated.mp4",
+      "processing_status": "Completed",
+      "persons": [
+        {
+          "person_id": "PERSON_1764660600839_M8VLSZMQO",
+          "average_confidence": 0.6898,
+          "identification": {
+            "nid": "98765431",
+            "name": "Imran"
+          }
+        },
+        {
+          "person_id": "P002",
+          "average_confidence": 0,
+          "identification": null
+        },
+        {
+          "person_id": "PERSON_1764663547866_NW8SD7PKA",
+          "average_confidence": 0.6495,
+          "identification": {
+            "nid": "3123781284",
+            "name": "Esmail"
+          }
+        }
+      ]
+    },
+    "uploadedAt": "2025-12-08T17:27:36.999Z",
+    "processing_status": "Completed",
+    "completed_at": "2025-12-08T17:28:30.772Z"
   }
 ]

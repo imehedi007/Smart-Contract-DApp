@@ -18,6 +18,17 @@ venv
 env
 dl/venv
 
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated/output files
+uploads/
+dl/output-images/
+dl/output_video.mp4
+dl/test_annotated.mp4
+
 # Large model weights directory (but allow individual model files tracked by LFS)
 dl/weights/
 dl/models/

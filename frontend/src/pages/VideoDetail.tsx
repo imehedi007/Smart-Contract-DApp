@@ -60,7 +60,7 @@ const VideoDetail = () => {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-muted-foreground">{error || 'Video not found'}</p>
+          <p className="text-muted-foregrofd">{error || 'Video not found'}</p>
           <Button
             onClick={() => navigate('/dashboard')}
             className="mt-4"
