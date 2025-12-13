@@ -18,9 +18,7 @@ venv
 env
 dl/venv
 
-# Large model files (exceeds GitHub's 100MB limit)
-*.onnx
-*.pt
+# Large model weights directory (but allow individual model files tracked by LFS)
 dl/weights/
 dl/models/
 
